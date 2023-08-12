@@ -87,12 +87,9 @@ fn c3_HSLtoRGB(hsl : vec3<f32>) -> vec3<f32>
 @fragment
 fn main(input : FragmentInput) -> FragmentOutput
 {
-	var output : FragmentOutput;
-	output.color = textureSample(textureFront, samplerFront, input.fragUV);
-	return output;
-
 	let image = textureSample(textureFront, samplerFront, input.fragUV);
 	let radAngle = radians(shaderParams.uAngle);
+	let size = uSize * 0.5;
 
 	// Get diameter of the circle around the srcStart size
 	let srcSize = c3Params.srcOriginEnd - c3Params.srcOriginStart;
@@ -101,17 +98,19 @@ fn main(input : FragmentInput) -> FragmentOutput
 
 	// Get center position of the shine at the angle
 	let shineDir = vec2<f32>(cos(radAngle), sin(radAngle));
-	let shineStart = srcCenter + (srcRadius * (1.0 + shaderParams.uSize) * shineDir);
-	let shineEnd = srcCenter - (srcRadius * (1.0 + shaderParams.uSize) * shineDir);
+	let shineRange = shaderParams.uSize * srcRadius;
+	let shineStart = srcCenter - (srcRadius + (shaderParams.uSize * 2.0) * srcRadius) * shineDir;
+	let shineEnd = srcCenter + (srcRadius + (shaderParams.uSize * 2.0) * srcRadius) * shineDir;
 
 	// Get position of the shine
 	let shinePos = shineStart + (shaderParams.uProgress * (shineEnd - shineStart));
 	let diff = input.fragUV - shinePos;
 	let projection = dot(diff, shineDir);
-	let shineRange = shaderParams.uSize * srcRadius;
-	let start = (shineRange - shaderParams.uHardness) * 0.5;
-	let end = (shineRange + shaderParams.uHardness) * 0.5;
-	let shine = smoothstep(start, shineRange * 0.5, projection) - smoothstep(shineRange * 0.5, end, projection);
+	let shine =
+						smoothstep(-shineRange * 0.5 - size, -shineRange * 0.5 - size * shaderParams.uHardness + 0.001, projection)
+					- smoothstep(shineRange * 0.5 + size * shaderParams.uHardness - 0.001, shineRange * 0.5 + size, projection);
 
-	return vec4<f32>(mix(image.rgb, shaderParams.uColor,  image.a * shaderParams.uIntensity * shine), image.a);
+	var output : FragmentOutput;
+	output.color = vec4<f32>(mix(image.rgb, shaderParams.uColor,  image.a * shaderParams.uIntensity * shine), image.a);
+	return output;
 }
