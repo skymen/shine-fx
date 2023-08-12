@@ -89,7 +89,7 @@ fn main(input : FragmentInput) -> FragmentOutput
 {
 	let image = textureSample(textureFront, samplerFront, input.fragUV);
 	let radAngle = radians(shaderParams.uAngle);
-	let size = uSize * 0.5;
+	let size = shaderParams.uSize * 0.5;
 
 	// Get diameter of the circle around the srcStart size
 	let srcSize = c3Params.srcOriginEnd - c3Params.srcOriginStart;
