@@ -88,7 +88,7 @@ fn c3_HSLtoRGB(hsl : vec3<f32>) -> vec3<f32>
 fn main(input : FragmentInput) -> FragmentOutput
 {
 	let image = textureSample(textureFront, samplerFront, input.fragUV);
-	let radAngle = radians(shaderParams.uAngle);
+	let radAngle = select(radians(shaderParams.uAngle), radians(90.0 + shaderParams.uAngle), c3Params.isSrcTexRotated != 0);
 	let size = shaderParams.uSize * 0.5;
 
 	// Get diameter of the circle around the srcStart size
@@ -106,9 +106,8 @@ fn main(input : FragmentInput) -> FragmentOutput
 	let shinePos = shineStart + (shaderParams.uProgress * (shineEnd - shineStart));
 	let diff = input.fragUV - shinePos;
 	let projection = dot(diff, shineDir);
-	let shine =
-						smoothstep(-shineRange * 0.5 - size, -shineRange * 0.5 - size * shaderParams.uHardness + 0.001, projection)
-					- smoothstep(shineRange * 0.5 + size * shaderParams.uHardness - 0.001, shineRange * 0.5 + size, projection);
+	let shine = smoothstep(-shineRange * 0.5 - size, -shineRange * 0.5 - size * shaderParams.uHardness + 0.001, projection)
+				- smoothstep(shineRange * 0.5 + size * shaderParams.uHardness - 0.001, shineRange * 0.5 + size, projection);
 
 	var output : FragmentOutput;
 	output.color = vec4<f32>(mix(image.rgb, shaderParams.uColor,  image.a * shaderParams.uIntensity * shine), image.a);

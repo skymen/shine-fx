@@ -44,7 +44,8 @@ uHardness: how hard the shine is, 0 is smooth, 1 is a hard edge , 0.0-1.0
 void main(void)
 {
 	mediump vec4 image = texture2D(samplerFront, vTex);
-	mediump float radAngle = radians(uAngle);
+	mediump float angle = srcOriginEnd.y < srcOriginStart.y ? -uAngle : uAngle;
+	mediump float radAngle = radians(angle);
 	mediump float size = uSize * 0.5;
 
 	//get diameter of the circle around the srcStart size

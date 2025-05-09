@@ -3,7 +3,7 @@ module.exports = {
   addonType: "effect",
   id: "better_shine",
   name: "Better Shine",
-  version: "1.0.0.1",
+  version: "1.0.0.2",
   category:
     // "blend",
     // "distortion",
